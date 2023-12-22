@@ -11,7 +11,8 @@ SELECT `degrees`.`name`, `degrees`.`level`, `departments`.`name`
 FROM `degrees`
 JOIN `departments`
 ON `degrees`.`department_id` = `departments`.`id`
-WHERE `departments`.`name` LIKE '%neuroscienz%';
+WHERE `departments`.`name` LIKE '%neuroscienz%'
+AND `degrees`.`level` LIKE 'magistrale';
 
 -- 3. Selezionare tutti i corsi in cui insegna Fulvio Amato (id=44)
 SELECT `courses`.`name` AS `course_name`, CONCAT(`teachers`.`name`, ' ', `teachers`.`surname`) AS `teacher`
@@ -32,7 +33,7 @@ ON `courses`.`degree_id`= `degrees`.`id`
 ORDER BY `student` ASC;
 
 -- 5. Selezionare tutti i corsi di laurea con i relativi corsi e insegnanti
-SELECT CONCAT(`degrees`.`name`, ' ', `degrees`.`level`) AS `degree`, CONCAT(`courses`.`name`, ' ', `courses`.`cfu`) AS `course`, CONCAT(`teachers`.`name`, ' ', `teachers`.`surname`) AS `teacher`
+SELECT CONCAT(`degrees`.`name`, ' ', `degrees`.`level`) AS `degree`, CONCAT(`courses`.`name`, ' ', `courses`.`cfu`) AS `course_cfu`, CONCAT(`teachers`.`name`, ' ', `teachers`.`surname`) AS `teacher`
 FROM `degrees`
 JOIN `courses`
 ON `courses`.`degree_id` = `degrees`.`id`
@@ -41,7 +42,7 @@ ON `courses`.`id` = `course_teacher`.`course_id`
 JOIN `teachers` ON `course_teacher`.`teacher_id` = `teachers`.`id`;
 
 -- 6. Selezionare tutti i docenti che insegnano nel Dipartimento di Matematica (54)
-SELECT CONCAT(`teachers`.`name`, ' ', `teachers`.`surname`) AS `teacher`, `departments`.`name`
+SELECT DISTINCT CONCAT(`teachers`.`name`, ' ', `teachers`.`surname`) AS `teacher`, `departments`.`name` AS `department`
 FROM `departments`
 JOIN `degrees`
 ON `degrees`.`department_id` = `departments`.`id`
@@ -53,7 +54,7 @@ JOIN `teachers` ON `course_teacher`.`teacher_id` = `teachers`.`id`
 WHERE `departments`.`name` LIKE '%matematica%';
 
 -- 7. BONUS: Selezionare per ogni studente quanti tentativi d’esame ha sostenuto per superare ciascuno dei suoi esami
-SELECT `courses`.`name` AS `course`, CONCAT(`students`.`surname`, ' ', `students`.`name`) AS `student`, COUNT(`exams`.`id`) AS `tentatives`
+SELECT `courses`.`name` AS `course`, CONCAT(`students`.`surname`, ' ', `students`.`name`) AS `student`, COUNT(*) AS `tentatives`, MAX(`exam_student`.`vote`) AS `voto_massimo`
 FROM `students`
 JOIN `exam_student`
 ON `exam_student`.`student_id` = `students`.`id`
@@ -61,4 +62,7 @@ JOIN `exams`
 ON `exams`.`id` = `exam_student`.`exam_id`
 JOIN `courses`
 ON `courses`.`id` = `exams`.`course_id`
-GROUP BY `exams`.`id`;
+GROUP BY `courses`.`id`, `students`.`id`
+HAVING `voto_massimo` >= 18
+ORDER BY `courses`.`name`;
+
