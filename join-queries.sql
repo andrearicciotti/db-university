@@ -3,7 +3,7 @@ SELECT `students`.`name`, `students`.`surname`, `degrees`.`name`, `degrees`.`lev
 FROM `students`
 JOIN `degrees` 
 ON `students`.`degree_id` = `degrees`.`id`
-WHERE `degrees`.`name` LIKE '%biologia%'
+WHERE `degrees`.`name` LIKE '%economia%'
 ORDER BY `students`.`name`;
 
 -- 2. Selezionare tutti i Corsi di Laurea Magistrale del Dipartimento di Neuroscienze
@@ -53,3 +53,12 @@ JOIN `teachers` ON `course_teacher`.`teacher_id` = `teachers`.`id`
 WHERE `departments`.`name` LIKE '%matematica%';
 
 -- 7. BONUS: Selezionare per ogni studente quanti tentativi d’esame ha sostenuto per superare ciascuno dei suoi esami
+SELECT `courses`.`name` AS `course`, CONCAT(`students`.`surname`, ' ', `students`.`name`) AS `student`, COUNT(`exams`.`id`) AS `tentatives`
+FROM `students`
+JOIN `exam_student`
+ON `exam_student`.`student_id` = `students`.`id`
+JOIN `exams` 
+ON `exams`.`id` = `exam_student`.`exam_id`
+JOIN `courses`
+ON `courses`.`id` = `exams`.`course_id`
+GROUP BY `exams`.`id`;
